@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -49,17 +50,25 @@ class BaseHandler implements HttpHandler {
         for (Map.Entry<String,String> e : res.headers.entrySet()) {
             resHeaders.set(e.getKey(), e.getValue());
         }
-        if (!resHeaders.containsKey("Content-Type")) {
-            resHeaders.set("Content-Type", "text/plain");
+        if (!resHeaders.containsKey("Content-Type") || resHeaders.get("Content-Type").size() == 0) {
+            resHeaders.set("Content-Type", "application/json");
         }
 
-        byte[] bytes = res.body.getBytes();
+        String body;
+        List<String> contentTypes = resHeaders.get("Content-Type");
+        if (contentTypes.contains("application/json")) {
+            body = new Json().stringify(res.body);
+        }
+        else {
+            body = res.body == null ? "" : res.body.toString();
+        }
+        byte[] bytes = body.getBytes();
         exchange.sendResponseHeaders(res.status, bytes.length);
         OutputStream responseBody = exchange.getResponseBody();
         responseBody.write(bytes);
         responseBody.close();
 
-        clf(exchange, req, res);
+        clf(exchange, req, res, bytes.length);
     }
 
     private Req createReq(HttpExchange exchange) throws IOException {
@@ -83,7 +92,7 @@ class BaseHandler implements HttpHandler {
     private static SimpleDateFormat df = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss Z");
 
     // prints a line a la http://httpd.apache.org/docs/1.3/logs.html#common
-    private static void clf(HttpExchange exchange, Req req, Res res) {
+    private static void clf(HttpExchange exchange, Req req, Res res, int bodyLen) {
         String h = exchange.getRemoteAddress().getHostName();
         String l = "-";  // rfc1413
         String u = "-";
@@ -91,7 +100,7 @@ class BaseHandler implements HttpHandler {
         String r = String.format("%s %s %s",
                 exchange.getRequestMethod(), req.uri, exchange.getProtocol());
         String s = String.valueOf(res.status);
-        String b = String.valueOf(res.body.getBytes().length);
+        String b = String.valueOf(bodyLen);
 
         System.out.printf("%s %s %s [%s] \"%s\" %s %s%n",
                 h, l, u, t, r, s, b

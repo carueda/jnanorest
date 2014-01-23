@@ -9,6 +9,6 @@ import java.util.Map;
  */
 public class Res {
     public int    status = 200;
-    public String body = "";
+    public Object body = "";
     public Map<String,String> headers = new HashMap<String, String>();
 }

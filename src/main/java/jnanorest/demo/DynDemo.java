@@ -3,7 +3,6 @@ package jnanorest.demo;
 import jnanorest.*;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -77,7 +76,7 @@ class DynRouteHandler extends RouteHandler {
             if (ret == null) {
                 res.body = "{}";
             }
-            res.body = new Json().jsoninfy(ret);
+            res.body = new Json().stringify(ret);
             return;
         }
         catch (InvocationTargetException e) {
@@ -93,95 +92,9 @@ class DynRouteHandler extends RouteHandler {
             res.body = String.format(
                     "{ \"error\": {\"class\": \"%s\", \"message\": \"%s\", \"stacktrace\": %s } }",
                     t.getClass().getName(), t.getMessage(),
-                    new Json().jsoninfy(t.getStackTrace())
+                    new Json().stringify(t.getStackTrace())
             );
         }
-    }
-
-    // simple JSONifier
-    private static class Json {
-        String jsoninfy(Object obj) {
-            String json = _jsoninfyObj(obj);
-            processed.clear();
-            return json;
-        }
-
-        private String _jsoninfyObj(Object obj) {
-            if (obj == null) {
-                return null;
-            }
-            if (isProcessed(obj)) {
-                return '"' + "[!]" + '"';
-            }
-            processed.add(obj);
-            if (obj instanceof Map) {
-                return _jsoninfyMap((Map) obj);
-            }
-            if (obj instanceof Iterable) {
-                return _jsoninfyIterable((Iterable) obj);
-            }
-            if (obj.getClass().isArray()) {
-                return _jsoninfyArray(obj);
-            }
-            return '"' + obj.toString() + '"';
-        }
-
-        private String _jsoninfyMap(Map<String, Object> map) {
-            StringBuilder sb = new StringBuilder("{");
-            String comma = "";
-            for (Map.Entry<String,Object> e: map.entrySet()) {
-                final Object value = e.getValue();
-                String valStr = _jsoninfyObj(value);
-                if (valStr != null) {
-                    sb.append(String.format("%s\"%s\": %s", comma, e.getKey(), valStr));
-                    comma = ", ";
-                }
-            }
-            sb.append("}");
-            return sb.toString();
-        }
-
-        private String _jsoninfyIterable(Iterable iterable) {
-            StringBuilder sb = new StringBuilder("[");
-            String comma = "";
-            for (Object obj: iterable) {
-                String valStr = _jsoninfyObj(obj);
-                if (valStr != null) {
-                    sb.append(comma);
-                    sb.append(valStr);
-                    comma = ", ";
-                }
-            }
-            sb.append("]");
-            return sb.toString();
-        }
-
-        private String _jsoninfyArray(Object array) {
-            StringBuilder sb = new StringBuilder("[");
-            String comma = "";
-            for (int i = 0, len = Array.getLength(array); i < len; i++) {
-                Object obj = Array.get(array, i);
-                String valStr = _jsoninfyObj(obj);
-                if (valStr != null) {
-                    sb.append(comma);
-                    sb.append(valStr);
-                    comma = ", ";
-                }
-            }
-            sb.append("]");
-            return sb.toString();
-        }
-
-        private boolean isProcessed(Object obj) {
-            for (int i = processed.size() -1; i >= 0; i--) {
-                if (processed.get(i) == obj) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private final List<Object> processed = new ArrayList<Object>();
     }
 }
 
