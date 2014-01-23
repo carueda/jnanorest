@@ -3,6 +3,8 @@ package jnanorest.demo;
 import jnanorest.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 // simple demo program
 public class Demo {
@@ -24,7 +26,10 @@ public class Demo {
     static class FooRouteHandler extends RouteHandler {
         public void get(Req req, Res res) throws IOException {
             res.status = 200;
-            res.body = "FooRouteHandler received request: GET " + req.uri;
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("uri", req.uri);
+            map.put("message", "handler \"FooRouteHandler\"");
+            res.body = map;
         }
     }
 

@@ -74,14 +74,15 @@ class DynRouteHandler extends RouteHandler {
         try {
             Object ret = method.invoke(obj, req.uri.getRawPath());
             if (ret == null) {
-                res.body = "{}";
+                res.body = "";
             }
-            res.body = new Json().stringify(ret);
+            else {
+                res.body = ret;
+            }
             return;
         }
         catch (InvocationTargetException e) {
             t = e.getTargetException();
-
         }
         catch (Throwable e) {
             t = e;
@@ -89,11 +90,13 @@ class DynRouteHandler extends RouteHandler {
 
         if (t != null) {
             res.status = 503;
-            res.body = String.format(
-                    "{ \"error\": {\"class\": \"%s\", \"message\": \"%s\", \"stacktrace\": %s } }",
-                    t.getClass().getName(), t.getMessage(),
-                    new Json().stringify(t.getStackTrace())
-            );
+            Map<String, Object> map2 = new HashMap<String, Object>();
+            map2.put("class", t.getClass().getName());
+            map2.put("message", t.getMessage());
+            map2.put("stacktrace", t.getStackTrace());
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("error", map2);
+            res.body = map;
         }
     }
 }
@@ -109,8 +112,8 @@ public class DynDemo {
         String className = DynDemo.class.getName();
 
         JNanoRest server = new JNanoRest(port)
-                .route("/", new DynRouteHandler(className))
-                ;
+            .route("/", new DynRouteHandler(className))
+        ;
         server.start();
         System.out.println("server is listening on port " + port);
         System.in.read();
@@ -133,6 +136,9 @@ public class DynDemo {
         }
         if (path.equals("/array")) {
             return new int[] {1, 2, 3};
+        }
+        if (path.equals("/null")) {
+            return null;
         }
         if (path.equals("/list")) {
             Map<String, Object> map = new HashMap<String, Object>();
