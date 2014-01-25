@@ -2,7 +2,7 @@ package jnanorest;
 
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 
@@ -35,9 +35,8 @@ public class JNanoRest {
 
     /**
      * Starts the server.
-     * @throws IOException
      */
-    public void start() throws IOException {
+    public void start() {
         server.start();
     }
 

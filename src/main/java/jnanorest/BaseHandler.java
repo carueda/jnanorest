@@ -55,7 +55,7 @@ class BaseHandler implements HttpHandler {
         }
     }
 
-    private void _handle(HttpExchange exchange, Req req, Res res) throws IOException {
+    private void _handle(HttpExchange exchange, Req req, Res res) throws Exception {
 
         String requestMethod = exchange.getRequestMethod();
         if (requestMethod.equalsIgnoreCase("GET")) {
@@ -113,7 +113,7 @@ class BaseHandler implements HttpHandler {
                 body);
     }
 
-    private Res createRes(HttpExchange exchange) throws IOException {
+    private Res createRes(HttpExchange exchange) {
         return new Res();
     }
 

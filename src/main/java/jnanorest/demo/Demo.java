@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-// simple demo program
+// simple demo program:
+// http get  http://localhost:2000/foo
+// http post http://localhost:2000/baz
 public class Demo {
 
     public static void main(String[] args) throws Exception {

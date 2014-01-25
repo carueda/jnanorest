@@ -2,14 +2,13 @@ package jnanorest.demo;
 
 import jnanorest.*;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
 /**
  * Dynamic route handler for a class given its name.
- * Very simplistic and incomplete.
+ * Very simplistic.
  */
 class DynRouteHandler extends RouteHandler {
     private final Class clazz;
@@ -29,7 +28,7 @@ class DynRouteHandler extends RouteHandler {
     }
 
     @Override
-    public void get(Req req, Res res) throws IOException {
+    public void get(Req req, Res res) throws Exception {
         if (mm.containsKey("get")) {
             dispatch(mm.get("get"), req, res);
         }
@@ -39,7 +38,7 @@ class DynRouteHandler extends RouteHandler {
     }
 
     @Override
-    public void post(Req req, Res res) throws IOException {
+    public void post(Req req, Res res) throws Exception {
         if (mm.containsKey("post")) {
             dispatch(mm.get("post"), req, res);
         }
@@ -49,7 +48,7 @@ class DynRouteHandler extends RouteHandler {
     }
 
     @Override
-    public void put(Req req, Res res) throws IOException {
+    public void put(Req req, Res res) throws Exception {
         if (mm.containsKey("put")) {
             dispatch(mm.get("put"), req, res);
         }
@@ -59,7 +58,7 @@ class DynRouteHandler extends RouteHandler {
     }
 
     @Override
-    public void delete(Req req, Res res) throws IOException {
+    public void delete(Req req, Res res) throws Exception {
         if (mm.containsKey("delete")) {
             dispatch(mm.get("delete"), req, res);
         }
@@ -68,9 +67,8 @@ class DynRouteHandler extends RouteHandler {
         }
     }
 
-    private void dispatch(Method method, Req req, Res res) throws IOException {
+    private void dispatch(Method method, Req req, Res res) throws Exception {
         res.headers.put("Content-type", "application/json");
-        Throwable t = null;
         try {
             Object ret = method.invoke(obj, req.uri.getRawPath());
             if (ret == null) {
@@ -79,24 +77,18 @@ class DynRouteHandler extends RouteHandler {
             else {
                 res.body = ret;
             }
-            return;
         }
         catch (InvocationTargetException e) {
-            t = e.getTargetException();
+            Throwable te = e.getTargetException();
+            if (te instanceof Exception) {
+                throw (Exception) te;
+            }
+            else {
+                throw new Exception(te);
+            }
         }
-        catch (Throwable e) {
-            t = e;
-        }
-
-        if (t != null) {
-            res.status = 503;
-            Map<String, Object> map2 = new HashMap<String, Object>();
-            map2.put("class", t.getClass().getName());
-            map2.put("message", t.getMessage());
-            map2.put("stacktrace", t.getStackTrace());
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("error", map2);
-            res.body = map;
+        catch (IllegalAccessException e) {
+            throw new Exception(e.getMessage());
         }
     }
 }
