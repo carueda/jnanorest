@@ -18,8 +18,8 @@ object build extends Build {
       resolvers += Classpaths.typesafeReleases,
       libraryDependencies ++= Seq(
         "com.google.code.gson"        % "gson"                 % "2.2.4"
-      )
+      ),
+      crossPaths := false
     )
   )
 }
-
