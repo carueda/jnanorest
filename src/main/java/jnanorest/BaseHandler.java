@@ -1,5 +1,6 @@
 package jnanorest;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -42,7 +43,7 @@ class BaseHandler implements HttpHandler {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("error", map2);
 
-            String body = new Json().stringify(map);
+            String body = new Gson().toJson(map);
             byte[] bytes = body.getBytes();
             resHeaders.set("Content-Type", "application/json");
             int status = 500;
@@ -85,7 +86,7 @@ class BaseHandler implements HttpHandler {
         String body;
         List<String> contentTypes = resHeaders.get("Content-Type");
         if (contentTypes.contains("application/json")) {
-            body = new Json().stringify(res.body);
+            body = new Gson().toJson(res.body);
         }
         else {
             body = res.body == null ? "" : res.body.toString();

@@ -122,7 +122,7 @@ public class DynDemo {
             map2.put("map1", map1);
 
             map1.put("path", path);
-            map1.put("map2", map2);
+            //map1.put("map2", map2); -- gson doesn't detect cycles
 
             return map1;
         }

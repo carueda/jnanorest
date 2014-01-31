@@ -1,9 +1,12 @@
 # jnanorest #
 
-A super simple and lightweight REST server in Java. No external dependencies.
+A super simple and lightweight REST server in Java.
+The only external dependency is the [google-gson](https://code.google.com/p/google-gson/)
+library for the formatting of JSON output.
 
-Note, currently very very limited, but was a quick and fun exercise, and could be
-extended, for example, to make the route definitions a bit more flexible.
+Note, this was just a quick exercise; the tool is very very limited, but you
+could have some fun trying to extend it (make route definitions a bit more
+flexible, http-enable regular methods,. etc.)
 
 HTTP server based on
 [com.sun.net.httpserver](http://docs.oracle.com/javase/6/docs/jre/api/net/httpserver/spec/com/sun/net/httpserver/package-summary.html).
@@ -44,11 +47,28 @@ public class Demo {
 
 ## Build and run ##
 
-```shell
-$ ./build.sh
-$ java -jar target/jnanorest.jar
-server is listening on port 2000
-```
+Using [SBT](http://www.scala-sbt.org/):
+
+
+    $ sbt
+    > run
+
+    Multiple main classes detected, select one to run:
+
+     [1] jnanorest.demo.DynDemo
+     [2] jnanorest.demo.Demo
+
+    Enter number: 2
+
+    [info] Running jnanorest.demo.Demo
+    server is listening on port 2000
+
+Or using the included script:
+
+    $ ./build.sh
+    $ java -jar target/jnanorest.jar
+    server is listening on port 2000
+
 
 Then open http://localhost:2000/foo in your browser,
 or use any typical command line tool (like
